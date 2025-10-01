@@ -148,12 +148,16 @@ function ContactForm({onSubmit, examSections}) {
 
 
     return (
-        <div className="max-w-3xl mx-auto p-8">
+        <div className="max-w-4xl mx-auto p-8">
             <div className="card bg-base-100 shadow-xl">
                 <div className="card-body">
+                    {/* Introduction Section */}
                     <APIntroduction/>
-                    <div className={"card bg-info/10 mb-8 p-8 mx-auto"}>
-                    <h2 className="card-title text-2xl font-bold mb-6">AP EXAM Registration Form</h2>
+
+                    <div className="divider my-8"></div>
+
+                    {/* Form Section */}
+                    <h2 className="text-2xl font-bold mb-6">AP EXAM Registration Form</h2>
 
                     <div className="space-y-4">
                         <FormField
@@ -201,7 +205,6 @@ function ContactForm({onSubmit, examSections}) {
                             error={error.mobilePhone}
                             placeholder="+1 (555) 000-0000"
                         />
-
                         <FormField
                             key="6"
                             name="currentSchool"
@@ -235,6 +238,7 @@ function ContactForm({onSubmit, examSections}) {
                         />
                     </div>
 
+                    {/* Error Alert */}
                     {hasError && (
                         <div className="alert alert-error mt-6">
                             <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -244,6 +248,7 @@ function ContactForm({onSubmit, examSections}) {
                         </div>
                     )}
 
+                    {/* Success Alert */}
                     {submitSuccess && (
                         <div className="alert alert-info mt-6">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
@@ -253,6 +258,7 @@ function ContactForm({onSubmit, examSections}) {
                         </div>
                     )}
 
+                    {/* Submit Button */}
                     <div className="card-actions justify-end mt-8">
                         <button
                             onClick={hasError ? () => alert('Please fix the errors first') : handleSubmit}
@@ -261,7 +267,6 @@ function ContactForm({onSubmit, examSections}) {
                         >
                             {isSubmitting ? 'Submitting...' : hasError ? 'Check Errors' : 'Submit'}
                         </button>
-                    </div>
                     </div>
                 </div>
             </div>
