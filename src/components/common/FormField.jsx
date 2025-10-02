@@ -5,7 +5,7 @@ function FormField({label, value, onChange, placeholder, name, error, type = "te
     return (
         <div className="form-control w-full">
             <label className="label">
-                <span className="label-text font-semibold break-words">{label}</span>
+                <span className="label-text font-semibold break-words whitespace-normal leading-snug">{label}</span>
             </label>
             {type === "select" ? (
                 <select
@@ -33,7 +33,7 @@ function FormField({label, value, onChange, placeholder, name, error, type = "te
             )}
             {error && (
                 <label className="label">
-                    <span className="label-text-alt text-error break-words">{error}</span>
+                    <span className="label-text-alt text-error break-words whitespace-normal leading-snug">{error}</span>
                 </label>
             )}
         </div>

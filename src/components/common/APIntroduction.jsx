@@ -114,19 +114,19 @@ function APIntroduction () {
                     <div className="card-body">
                         <h3 className="card-title text-xl mb-4">Cost Details</h3>
                         <div className="space-y-4">
-                            <div className="flex items-start gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-[minmax(100px,15%)_1fr] items-start sm:items-center gap-2 sm:gap-4">
                                 <div className="badge badge-primary badge-lg">Regular</div>
                                 <div>
-                                    <p className="font-semibold text-lg">CAD $275 per exam</p>
-                                    <p className="text-sm text-gray-600">Registration deadline: November 7, 2025</p>
+                                    <p className="font-semibold text-base sm:text-lg">CAD $275 per exam</p>
+                                    <p className="text-xs sm:text-sm text-gray-600">Registration deadline: November 7, 2025</p>
                                 </div>
                             </div>
                             <div className="divider"></div>
-                            <div className="flex items-start gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-[minmax(100px,15%)_1fr] items-start sm:items-center gap-2 sm:gap-4">
                                 <div className="badge badge-warning badge-lg">Late</div>
                                 <div>
-                                    <p className="font-semibold text-lg">CAD $350 per exam</p>
-                                    <p className="text-sm text-gray-600">Late registration: November 15, 2025 - March 13, 2026</p>
+                                    <p className="font-semibold text-base sm:text-lg">CAD $350 per exam</p>
+                                    <p className="text-xs sm:text-sm text-gray-600">Late registration: November 15, 2025 - March 13, 2026</p>
                                     <p className="text-xs text-gray-500">(Includes $75 late fee)</p>
                                 </div>
                             </div>

@@ -88,14 +88,16 @@ function ContactForm({onSubmit, examSections}) {
             return phoneRegex.test(value) ? null : 'Please enter a valid phone number';
         },
         firstName: (value) => {
-            const firstNameRegex = /^[A-Za-z_]+$/;
+            const firstNameRegex = /^[\p{L}\p{M}\s'-]+$/u;
             if (!value) return 'First name is required';
+            if (value.trim().length === 0) return 'First name cannot be only spaces';
             return firstNameRegex.test(value) ? null : 'Please enter a valid first name';
         },
         lastName: (value) => {
-            const lastNameRegex = /^[A-Za-z_]+$/;
+            const firstNameRegex = /^[\p{L}\p{M}\s'-]+$/u;
             if (!value) return 'Last name is required';
-            return lastNameRegex.test(value) ? null : 'Please enter a valid last name';
+            if (value.trim().length === 0) return 'Last name cannot be only spaces';
+            return firstNameRegex.test(value) ? null : 'Please enter a valid last name';
         },
         examSection: (value) => {
             if (!value) return 'Please select exam section';
@@ -157,116 +159,120 @@ function ContactForm({onSubmit, examSections}) {
                     <div className="divider my-8"></div>
 
                     {/* Form Section */}
-                    <h2 className="text-2xl font-bold mb-6">AP EXAM Registration Form</h2>
+                    <div className="card bg-info/10 mb-8">
+                        <div className="card-body">
+                            <h2 className="text-2xl font-bold mb-6">AP EXAM Registration Form</h2>
 
-                    <div className="space-y-4">
-                        <FormField
-                            key="1"
-                            name="firstName"
-                            label="First Name"
-                            value={formState.firstName}
-                            onChange={handleChange}
-                            error={error.firstName}
-                            placeholder="Enter your first name"
-                        />
-                        <FormField
-                            key="2"
-                            name="lastName"
-                            label="Last Name"
-                            value={formState.lastName}
-                            onChange={handleChange}
-                            error={error.lastName}
-                            placeholder="Enter your last name"
-                        />
-                        <FormField
-                            key="3"
-                            name="email"
-                            label="Email"
-                            value={formState.email}
-                            onChange={handleChange}
-                            error={error.email}
-                            placeholder="your.email@example.com"
-                        />
-                        <FormField
-                            key="4"
-                            name="homePhone"
-                            label="Home Phone (optional)"
-                            value={formState.homePhone}
-                            onChange={handleChange}
-                            error={error.homePhone}
-                            placeholder="+1 (555) 000-0000"
-                        />
-                        <FormField
-                            key="5"
-                            name="mobilePhone"
-                            label="Mobile Phone"
-                            value={formState.mobilePhone}
-                            onChange={handleChange}
-                            error={error.mobilePhone}
-                            placeholder="+1 (555) 000-0000"
-                        />
-                        <FormField
-                            key="6"
-                            name="currentSchool"
-                            label="Current Day School"
-                            value={formState.currentSchool}
-                            onChange={handleChange}
-                            error={error.currentSchool}
-                            placeholder="Amberson High School"
-                        />
-                        <FormField
-                            key="7"
-                            name="grade"
-                            label="Grade"
-                            type="select"
-                            value={formState.grade}
-                            onChange={handleChange}
-                            error={error.grade}
-                            placeholder="Select your current grade"
-                            options={gradeSections}
-                        />
-                        <FormField
-                            key="8"
-                            name="examSection"
-                            label="Name of the Exam Section you are requesting"
-                            type="select"
-                            value={formState.examSection}
-                            onChange={handleChange}
-                            error={error.examSection}
-                            placeholder="Select an exam section"
-                            options={examSections}
-                        />
-                    </div>
+                            <div className="space-y-4">
+                                <FormField
+                                    key="1"
+                                    name="firstName"
+                                    label="First Name"
+                                    value={formState.firstName}
+                                    onChange={handleChange}
+                                    error={error.firstName}
+                                    placeholder="Enter your first name"
+                                />
+                                <FormField
+                                    key="2"
+                                    name="lastName"
+                                    label="Last Name"
+                                    value={formState.lastName}
+                                    onChange={handleChange}
+                                    error={error.lastName}
+                                    placeholder="Enter your last name"
+                                />
+                                <FormField
+                                    key="3"
+                                    name="email"
+                                    label="Email"
+                                    value={formState.email}
+                                    onChange={handleChange}
+                                    error={error.email}
+                                    placeholder="your.email@example.com"
+                                />
+                                <FormField
+                                    key="4"
+                                    name="homePhone"
+                                    label="Home Phone (optional)"
+                                    value={formState.homePhone}
+                                    onChange={handleChange}
+                                    error={error.homePhone}
+                                    placeholder="+1 (555) 000-0000"
+                                />
+                                <FormField
+                                    key="5"
+                                    name="mobilePhone"
+                                    label="Mobile Phone"
+                                    value={formState.mobilePhone}
+                                    onChange={handleChange}
+                                    error={error.mobilePhone}
+                                    placeholder="+1 (555) 000-0000"
+                                />
+                                <FormField
+                                    key="6"
+                                    name="currentSchool"
+                                    label="Current Day School"
+                                    value={formState.currentSchool}
+                                    onChange={handleChange}
+                                    error={error.currentSchool}
+                                    placeholder="Amberson High School"
+                                />
+                                <FormField
+                                    key="7"
+                                    name="grade"
+                                    label="Grade"
+                                    type="select"
+                                    value={formState.grade}
+                                    onChange={handleChange}
+                                    error={error.grade}
+                                    placeholder="Select your current grade"
+                                    options={gradeSections}
+                                />
+                                <FormField
+                                    key="8"
+                                    name="examSection"
+                                    label="Name of the Exam Section you are requesting"
+                                    type="select"
+                                    value={formState.examSection}
+                                    onChange={handleChange}
+                                    error={error.examSection}
+                                    placeholder="Select an exam section"
+                                    options={examSections}
+                                />
+                            </div>
 
-                    {/* Error Alert */}
-                    {hasError && (
-                        <div className="alert alert-error mt-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>Please check the errors before submitting</span>
+                            {/* Error Alert */}
+                            {hasError && (
+                                <div className="alert alert-error mt-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Please check the errors before submitting</span>
+                                </div>
+                            )}
+
+                            {/* Success Alert */}
+                            {submitSuccess && (
+                                <div className="alert alert-info mt-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Form submitted successfully!</span>
+                                </div>
+                            )}
+
+                            {/* Submit Button */}
+                            <div className="card-actions justify-end mt-8">
+                                <button
+                                    onClick={hasError ? () => alert('Please fix the errors first') : handleSubmit}
+                                    className={`btn btn-lg ${hasError ? 'btn-error' : 'btn-primary'} ${isSubmitting ? 'loading' : ''}`}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Submitting...' : hasError ? 'Check Errors' : 'Submit'}
+                                </button>
+                            </div>
                         </div>
-                    )}
-
-                    {/* Success Alert */}
-                    {submitSuccess && (
-                        <div className="alert alert-info mt-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Form submitted successfully!</span>
-                        </div>
-                    )}
-
-                    {/* Submit Button */}
-                    <div className="card-actions justify-end mt-8">
-                        <button
-                            onClick={hasError ? () => alert('Please fix the errors first') : handleSubmit}
-                            className={`btn btn-lg ${hasError ? 'btn-error' : 'btn-primary'} ${isSubmitting ? 'loading' : ''}`}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Submitting...' : hasError ? 'Check Errors' : 'Submit'}
-                        </button>
                     </div>
                 </div>
             </div>
