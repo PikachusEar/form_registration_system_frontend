@@ -3,7 +3,7 @@ import React from 'react';
 import FormField from '../common/FormField';
 import APIntroduction from "../common/APIntroduction.jsx";
 
-function ContactForm({onSubmit, examSections, gradeSections}) {
+function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submitSuccess}) {
     const [formState, setFormState] = useState({
         firstName: '',
         lastName: '',
@@ -14,8 +14,6 @@ function ContactForm({onSubmit, examSections, gradeSections}) {
         grade: '',
         examSection: '',
     })
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitSuccess, setSubmitSuccess] = useState(false);
     const [error, setError] = useState({
         firstName: 'This field is required',
         lastName: 'This field is required',
@@ -41,11 +39,8 @@ function ContactForm({onSubmit, examSections, gradeSections}) {
     }, [error]);
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
         setTimeout(()=> {
             onSubmit(formState);
-            setIsSubmitting(false);
-            setSubmitSuccess(true);
             setTimeout(() => {
                 setFormState({
                     firstName: '',
@@ -57,7 +52,6 @@ function ContactForm({onSubmit, examSections, gradeSections}) {
                     grade: '',
                     examSection: '',
                 })
-                //setSubmitSuccess(false);
             }, 1000)
         }, 1000)
     };

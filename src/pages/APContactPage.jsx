@@ -1,6 +1,7 @@
 import ContactForm from "../components/layout/ContactForm.jsx";
 import React from "react";
 import registrationAPI from "../services/api.js";
+import { useState } from "react";
 
 const examSections = [
     { value: "Week 1: Monday", label: "Week 1: Monday" },
@@ -24,17 +25,25 @@ const gradeSections = [
 
 
 function APContactPage() {
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const recieveSubmit = (formData) => {
+    const receiveSubmit = (formData) => {
+        setIsSubmitting(true);
+        setSubmitSuccess(false);
 
         console.log('handleSubmit', formData);
         registrationAPI.create(formData)
             .then(response => {
                 if (response.success === false) {
+                    setIsSubmitting(false);
+                    setSubmitSuccess(false);
                     alert('Registration failed. Please try again.');
                     return;
                 }
                 if (response.success === true) {
+                    setSubmitSuccess(true);
+                    setIsSubmitting(false);
                     alert('Registration successful!');
                     return;
                 }
@@ -50,9 +59,11 @@ function APContactPage() {
     return (
         <div>
         <ContactForm
-            onSubmit={recieveSubmit}
+            onSubmit={receiveSubmit}
             examSections={examSections}
             gradeSections={gradeSections}
+            submitSuccess={submitSuccess}
+            isSubmitting={isSubmitting}
         />
         </div>
     )
