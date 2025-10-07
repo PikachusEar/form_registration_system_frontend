@@ -1,5 +1,6 @@
 import ContactForm from "../components/layout/ContactForm.jsx";
-import APIntroduction from "../components/common/APIntroduction.jsx";
+import React from "react";
+import registrationAPI from "../services/api.js";
 
 const examSections = [
     { value: "Week 1: Monday", label: "Week 1: Monday" },
@@ -14,11 +15,36 @@ const examSections = [
     { value: "Week 2: Friday", label: "Week 2: Friday" },
 ];
 
+const gradeSections = [
+    {value: "12", label: "Grade 12"},
+    {value: "11", label: "Grade 11"},
+    {value: "10", label: "Grade 10"},
+    {value: "9", label: "Grade 9"},
+];
+
+
 function APContactPage() {
 
     const recieveSubmit = (formData) => {
 
         console.log('handleSubmit', formData);
+        registrationAPI.create(formData)
+            .then(response => {
+                if (response.success === false) {
+                    alert('Registration failed. Please try again.');
+                    return;
+                }
+                if (response.success === true) {
+                    alert('Registration successful!');
+                    return;
+                }
+                console.log('response', response);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Registration failed. Please try again.');
+            }
+            )
     };
 
     return (
@@ -26,6 +52,7 @@ function APContactPage() {
         <ContactForm
             onSubmit={recieveSubmit}
             examSections={examSections}
+            gradeSections={gradeSections}
         />
         </div>
     )

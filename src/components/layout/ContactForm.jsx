@@ -3,14 +3,7 @@ import React from 'react';
 import FormField from '../common/FormField';
 import APIntroduction from "../common/APIntroduction.jsx";
 
-const gradeSections = [
-    {value: "12", label: "Grade 12"},
-    {value: "11", label: "Grade 11"},
-    {value: "10", label: "Grade 10"},
-    {value: "9", label: "Grade 9"},
-];
-
-function ContactForm({onSubmit, examSections}) {
+function ContactForm({onSubmit, examSections, gradeSections}) {
     const [formState, setFormState] = useState({
         firstName: '',
         lastName: '',
