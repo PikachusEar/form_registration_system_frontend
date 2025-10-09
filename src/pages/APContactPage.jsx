@@ -1,5 +1,4 @@
 import ContactForm from "../components/layout/ContactForm.jsx";
-import React, {useEffect} from "react";
 import registrationAPI from "../services/api.js";
 import { useState } from "react";
 
@@ -33,7 +32,9 @@ function APContactPage() {
         setSubmitSuccess(false);
 
         console.log('handleSubmit', formData);
-        registrationAPI.create(formData)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        registrationAPI.create(formData, { signal: controller.signal })
             .then(response => {
                 if (response.success === false) {
                     setIsSubmitting(false);
@@ -50,19 +51,16 @@ function APContactPage() {
                 console.log('response', response);
             })
             .catch(error => {
+                clearTimeout(timeoutId);
+                setIsSubmitting(false);
                 console.error('Error:', error);
-                alert('Registration failed. Please try again.');
+                alert(error.name === 'AbortError'
+                    ? 'Registration time out. Please try again.'
+                    : 'Registration failed. Please try again later'
+                );
             }
             )
     };
-    useEffect(() => {
-        if (!isSubmitting) return;
-        setTimeout(() => {
-            setSubmitSuccess(false);
-            setIsSubmitting(false);
-            alert('Timeout! Please try again later.');
-        }, 5000);
-    }, [isSubmitting])
 
     return (
         <div>

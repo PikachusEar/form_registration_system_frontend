@@ -67,7 +67,7 @@ export const registrationAPI = {
      * @param {object} registrationData - Registration form data
      * @returns {Promise<object>} Created registration response
      */
-    create: async (registrationData) => {
+    create: async (registrationData, options = {}) => {
         try {
             const response = await apiRequest(ENDPOINTS.REGISTRATIONS, {
                 method: 'POST',
@@ -81,6 +81,7 @@ export const registrationAPI = {
                     grade: registrationData.grade,
                     examSection: registrationData.examSection,
                 }),
+                signal: options.signal,
             });
 
             return {
@@ -89,6 +90,13 @@ export const registrationAPI = {
                 message: response.message || 'Registration submitted successfully'
             };
         } catch (error) {
+            if (error.name === 'AbortError') {
+                return {
+                    success: false,
+                    message: 'Request Timeout. Please try again later.',
+                    errors: []
+                };
+            }
             return {
                 success: false,
                 message: error.message,
