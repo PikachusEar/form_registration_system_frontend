@@ -1,5 +1,5 @@
 import ContactForm from "../components/layout/ContactForm.jsx";
-import React from "react";
+import React, {useEffect} from "react";
 import registrationAPI from "../services/api.js";
 import { useState } from "react";
 
@@ -55,6 +55,14 @@ function APContactPage() {
             }
             )
     };
+    useEffect(() => {
+        if (!isSubmitting) return;
+        setTimeout(() => {
+            setSubmitSuccess(false);
+            setIsSubmitting(false);
+            alert('Timeout! Please try again later.');
+        }, 5000);
+    }, [isSubmitting])
 
     return (
         <div>
