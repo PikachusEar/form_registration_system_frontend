@@ -1,6 +1,6 @@
 import ContactForm from "../components/layout/ContactForm.jsx";
-import registrationAPI from "../services/api.js";
-import { useState } from "react";
+import registrationAPI, {generateIdempotencyKey} from "../services/api.js";
+import {useRef, useState} from "react";
 
 const examSections = [
     { value: "Week 1: Monday", label: "Week 1: Monday" },
@@ -26,15 +26,24 @@ const gradeSections = [
 function APContactPage() {
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const idempotencyKeyRef = useRef(null);
 
     const receiveSubmit = (formData) => {
         setIsSubmitting(true);
         setSubmitSuccess(false);
+        if (!idempotencyKeyRef.current) {
+            idempotencyKeyRef.current = generateIdempotencyKey();
+            console.log('idempotencyKey', idempotencyKeyRef.current);
+        }
+        const dataWithIdempotencyKey = {
+            ...formData,
+            idempotencyKey: idempotencyKeyRef.current,
+        }
 
-        console.log('handleSubmit', formData);
+        console.log('Submitting data: ', dataWithIdempotencyKey);
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
-        registrationAPI.create(formData, { signal: controller.signal })
+        registrationAPI.create(dataWithIdempotencyKey, { signal: controller.signal })
             .then(response => {
                 if (response.success === false) {
                     setIsSubmitting(false);

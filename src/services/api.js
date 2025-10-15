@@ -57,6 +57,14 @@ const apiRequest = async (url, options = {}) => {
         };
     }
 };
+// Generate a unique idempotency key
+export const generateIdempotencyKey = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+};
 
 /**
  * Registration API Service
@@ -72,6 +80,7 @@ export const registrationAPI = {
             const response = await apiRequest(ENDPOINTS.REGISTRATIONS, {
                 method: 'POST',
                 body: JSON.stringify({
+                    idempotencyKey: registrationData.idempotencyKey,
                     firstName: registrationData.firstName,
                     lastName: registrationData.lastName,
                     email: registrationData.email,
