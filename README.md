@@ -91,7 +91,7 @@ form_registration_system_frontend/
 ├── src/
 │   ├── components/
 │   │   ├── common/
-│   │   │   └── APIntroduction.jsx    # AP exam info component
+│   │   │   └── ImportantNotes.jsx    # AP exam info component
 │   │   └── layout/
 │   │       └── ContactForm.jsx       # Main registration form
 │   ├── pages/

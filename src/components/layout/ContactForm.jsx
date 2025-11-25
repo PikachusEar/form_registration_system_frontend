@@ -1,7 +1,11 @@
 import {useState, useEffect} from 'react'
 import React from 'react';
 import FormField from '../common/FormField';
-import APIntroduction from "../common/APIntroduction.jsx";
+import ImportantNotes from "../common/ImportantNotes.jsx";
+import ExamTimeTable from "../common/ExamTimeTable.jsx";
+import CostDetails from "../common/CostDetails.jsx";
+import PaymentMethod from "../common/PaymentMethod.jsx";
+import TotalCost from "../common/TotalCost.jsx";
 
 function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submitSuccess}) {
     const [formState, setFormState] = useState({
@@ -140,11 +144,18 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
         <div className="max-w-4xl mx-auto p-8">
             <div className="card bg-base-100 shadow-xl">
                 <div className="card-body">
-                    {/* Introduction Section */}
-                    <APIntroduction/>
-
-                    <div className="divider my-8"></div>
-
+                    <div className="flex items-center justify-between mb-8 gap-4">
+                        <img
+                        src="/src/assets/Amberson_Logo.png"
+                        alt="School Logo"
+                        className="w-62 h-21 "
+                        />
+                        <div className="text-right flex-1">
+                            <h1 className="text-2xl font-bold text-gray-600 mb-2">AP EXAM Only Sections Registration Form </h1>
+                            <h1 className="text-2xl font-bold text-gray-600 mb-2">2025-2026</h1>
+                            {/*<p className="text-lg text-gray-600">Amberson High School</p>*/}
+                        </div>
+                    </div>
                     {/* Form Section */}
                     <div className="card bg-info/10 mb-8">
                         <div className="card-body">
@@ -216,6 +227,8 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                     placeholder="Select your current grade"
                                     options={gradeSections}
                                 />
+
+                                <ExamTimeTable/>
                                 <FormField
                                     key="8"
                                     name="examSection"
@@ -227,7 +240,12 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                     placeholder="Select an exam section"
                                     options={examSections}
                                 />
+                                <button className="btn btn-block btn-sm btn-soft btn-secondary">Add</button>
+
                             </div>
+                            <CostDetails/>
+                            <PaymentMethod/>
+                            <TotalCost/>
 
                             {/* Error Alert */}
                             {hasError && (
@@ -261,6 +279,8 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                             </div>
                         </div>
                     </div>
+                    {/* Introduction Section */}
+                    <ImportantNotes/>
                 </div>
             </div>
         </div>
