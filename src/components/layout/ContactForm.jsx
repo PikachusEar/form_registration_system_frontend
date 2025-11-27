@@ -7,27 +7,34 @@ import CostDetails from "../common/CostDetails.jsx";
 import PaymentMethod from "../common/PaymentMethod.jsx";
 import TotalCost from "../common/TotalCost.jsx";
 
-function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submitSuccess}) {
+function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submitSuccess, priceType = 'regular'}) {
     const [formState, setFormState] = useState({
         firstName: '',
         lastName: '',
         email: '',
+        gender: '',
+        dateOfBirth: null,
+        address: '',
         homePhone: '',
         mobilePhone: '',
         currentSchool: '',
         grade: '',
-        examSection: '',
+        examSection: [''],
     })
     const [error, setError] = useState({
         firstName: 'This field is required',
         lastName: 'This field is required',
+        gender: 'This field is required',
+        dateOfBirth: 'This field is required',
         email: 'This field is required',
+        address: 'This field is required',
         mobilePhone: 'This field is required',
         currentSchool: 'This field is required',
         grade: 'This field is required',
-        examSection: 'This field is required',
+        examSection: ['This field is required'],
     });
     const [hasError, setHasError] = useState(true);
+    const [examSectionsAmount, setExamSectionsAmount] = useState(1);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -38,9 +45,29 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
         }
     }
 
+    const handleExamSectionFieldChange = (index, value) => {
+        const newExamSections = [...formState.examSection];
+        newExamSections[index] = value;
+        setFormState({ ...formState, examSection: newExamSections });
+
+        // Validate
+        const fieldError = validators.examSection(value);
+        const newErrors = [...(error.examSection || [])];
+        newErrors[index] = fieldError;
+        setError(prev => ({ ...prev, examSection: newErrors }));
+    }
+
     useEffect(() => {
-        setHasError(Object.values(error).some(err => err));
+        const hasFieldError = Object.entries(error).some(([key, err]) => {
+            if (key === 'examSection' && Array.isArray(err)) {
+                return err.some(e => e);  // Check if any exam section has error
+            }
+            return err;
+        });
+        setHasError(hasFieldError);
     }, [error]);
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setTimeout(()=> {
@@ -49,16 +76,34 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                 setFormState({
                     firstName: '',
                     lastName: '',
+                    gender: '',
+                    dateOfBirth: null,
                     email: '',
+                    address: '',
                     homePhone: '',
                     mobilePhone: '',
                     currentSchool: '',
                     grade: '',
-                    examSection: '',
+                    examSection: [''],
                 })
+                setExamSectionsAmount(1);
             }, 1000)
         }, 1000)
     };
+
+    const handleExamSectionChange = () => {
+        if (examSectionsAmount < 5) {
+            setExamSectionsAmount(examSectionsAmount + 1);
+            setFormState(prev => ({
+                ...prev,
+                examSection: [...prev.examSection, '']
+            }));
+            setError(prev => ({
+                ...prev,
+                examSection: [...(prev.examSection || []), 'This field is required']
+            }));
+        }
+    }
     const validators = {
         required: (value) => {
             return value.trim() !== '' ? null : 'This field is required';
@@ -98,7 +143,19 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
         },
         currentSchool:(value) => {
             if (!value) return 'Please enter your school';
-        }
+        },
+        address:(value) => {
+            if (!value) return 'Please enter your address';
+        },
+        gender:(value) => {
+            if (!value) return 'Please select your gender';
+        },
+        dateOfBirth: (value) => {
+            if (!value) return 'Date of birth is required';
+            const today = new Date();
+            if (value > today) return 'Date of birth cannot be in the future';
+            return null;
+        },
     }
     const validateFields = (name, value) => {
         let errors = {};
@@ -126,6 +183,15 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                 break
             case 'currentSchool':
                 errors = validators.currentSchool(value)
+                break
+            case 'address':
+                errors = validators.address(value)
+                break
+            case 'gender':
+                errors = validators.gender(value)
+                break
+            case 'dateOfBirth':
+                errors = validators.dateOfBirth(value)
                 break
             default:
                 break;
@@ -162,7 +228,7 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                             <h2 className="text-2xl font-bold mb-6">AP EXAM Registration Form</h2>
 
                             <div className="space-y-4">
-                                <FormField
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><FormField
                                     key="1"
                                     name="firstName"
                                     label="First Name"
@@ -171,15 +237,41 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                     error={error.firstName}
                                     placeholder="Enter your first name"
                                 />
-                                <FormField
-                                    key="2"
-                                    name="lastName"
-                                    label="Last Name"
-                                    value={formState.lastName}
+                                    <FormField
+                                        key="2"
+                                        name="lastName"
+                                        label="Last Name"
+                                        value={formState.lastName}
+                                        onChange={handleChange}
+                                        error={error.lastName}
+                                        placeholder="Enter your last name"
+                                    /></div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                    key="8"
+                                    name={`gender`}
+                                    label={`Gender`}
+                                    type="select"
+                                    value={formState.gender}
                                     onChange={handleChange}
-                                    error={error.lastName}
-                                    placeholder="Enter your last name"
+                                    error={error.gender}
+                                    placeholder="Select your gender"
+                                    options={[{value: "Male", label: "Male"}, {
+                                        value: "Female",
+                                        label: "Female"
+                                    }, {value: "Other", label: "Other"}]}
                                 />
+                                    <FormField
+                                        key="dateOfBirth"
+                                        name="dateOfBirth"
+                                        label="Date of Birth"
+                                        type="date"
+                                        value={formState.dateOfBirth}
+                                        onChange={handleChange}
+                                        error={error.dateOfBirth}
+                                        placeholder="Select your date of birth"
+                                    />
+                                </div>
                                 <FormField
                                     key="3"
                                     name="email"
@@ -190,15 +282,16 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                     placeholder="your.email@example.com"
                                 />
                                 <FormField
-                                    key="4"
-                                    name="homePhone"
-                                    label="Home Phone (optional)"
-                                    value={formState.homePhone}
+                                    key="10"
+                                    name="address"
+                                    label="Address"
+                                    value={formState.address}
                                     onChange={handleChange}
-                                    error={error.homePhone}
-                                    placeholder="+1 (555) 000-0000"
+                                    error={error.address}
+                                    placeholder="7100 Birchmount Rd, Markham, ON L3R 4H2"
                                 />
-                                <FormField
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
                                     key="5"
                                     name="mobilePhone"
                                     label="Mobile Phone"
@@ -207,6 +300,17 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                     error={error.mobilePhone}
                                     placeholder="+1 (555) 000-0000"
                                 />
+                                    <FormField
+                                        key="4"
+                                        name="homePhone"
+                                        label="Home Phone (optional)"
+                                        value={formState.homePhone}
+                                        onChange={handleChange}
+                                        error={error.homePhone}
+                                        placeholder="+1 (555) 000-0000"
+                                    />
+                                </div>
+                                
                                 <FormField
                                     key="6"
                                     name="currentSchool"
@@ -229,23 +333,36 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                 />
 
                                 <ExamTimeTable/>
-                                <FormField
-                                    key="8"
-                                    name="examSection"
-                                    label="Name of the Exam Section you are requesting"
-                                    type="select"
-                                    value={formState.examSection}
-                                    onChange={handleChange}
-                                    error={error.examSection}
-                                    placeholder="Select an exam section"
-                                    options={examSections}
-                                />
-                                <button className="btn btn-block btn-sm btn-soft btn-secondary">Add</button>
+
+                                {formState.examSection.map((value, index) => (
+                                    <FormField
+                                        key={`examSection-${index}`}
+                                        name={`examSection${index}`}
+                                        label={`Name of Exam Section ${index + 1}`}
+                                        type="select"
+                                        value={value}
+                                        onChange={(e) => handleExamSectionFieldChange(index, e.target.value)}
+                                        error={error.examSection?.[index]}
+                                        placeholder="Select an exam section"
+                                        options={examSections}
+                                    />
+                                ))}
+                                <button
+                                    className="btn btn-block btn-sm btn-soft btn-secondary"
+                                    onClick={handleExamSectionChange}
+                                    disabled={examSectionsAmount >= 5}
+                                >
+                                    Add
+                                </button>
+                                <h1>{examSectionsAmount}</h1>
 
                             </div>
                             <CostDetails/>
                             <PaymentMethod/>
-                            <TotalCost/>
+                            <TotalCost
+                                selectedExams={formState.examSection}
+                                registrationType={priceType}
+                            />
 
                             {/* Error Alert */}
                             {hasError && (

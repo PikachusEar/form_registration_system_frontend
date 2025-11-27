@@ -1,14 +1,13 @@
 function TotalCost({ selectedExams = [], registrationType = 'regular' }) {
     // Pricing
     const REGULAR_PRICE = 275;
-    const LATE_PRICE = 350;
     const LATE_FEE = 75;
 
-    const pricePerExam = registrationType === 'late' ? LATE_PRICE : REGULAR_PRICE;
+    const pricePerExam = REGULAR_PRICE;
     const examCount = selectedExams.length;
     const subtotal = examCount * pricePerExam;
     const lateFeeTotal = registrationType === 'late' ? examCount * LATE_FEE : 0;
-    const total = subtotal;
+    const total = subtotal + lateFeeTotal;
 
     return (
         <div>
@@ -48,9 +47,9 @@ function TotalCost({ selectedExams = [], registrationType = 'regular' }) {
                         <div className="flex justify-between items-center">
                             <div>
                                 <span className="text-gray-700">Price per Exam</span>
-                                {registrationType === 'late' && (
+                                {/*{registrationType === 'late' && (
                                     <div className="badge badge-warning badge-sm ml-2">Late Registration</div>
-                                )}
+                                )}*/}
                             </div>
                             <span className="font-semibold">CAD ${pricePerExam}</span>
                         </div>

@@ -84,6 +84,7 @@ export const registrationAPI = {
                     firstName: registrationData.firstName,
                     lastName: registrationData.lastName,
                     email: registrationData.email,
+                    address: registrationData.address,
                     homePhone: registrationData.homePhone || null,
                     mobilePhone: registrationData.mobilePhone,
                     currentSchool: registrationData.currentSchool,

@@ -79,6 +79,7 @@ function APContactPage() {
             gradeSections={gradeSections}
             submitSuccess={submitSuccess}
             isSubmitting={isSubmitting}
+            priceType="late"
         />
         </div>
     )

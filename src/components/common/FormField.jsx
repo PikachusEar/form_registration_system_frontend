@@ -1,4 +1,6 @@
 import React from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 function FormField({label, value, onChange, placeholder, name, error, type = "text", options}) {
 
@@ -21,6 +23,21 @@ function FormField({label, value, onChange, placeholder, name, error, type = "te
                         </option>
                     ))}
                 </select>
+            ) : type === "date" ? (
+                <div className="w-full">
+                    <DatePicker
+                    selected={value}
+                    onChange={(date) => onChange({target: {name, value: date}})}
+                    placeholderText={placeholder}
+                    className={`input input-bordered w-full ${error ? 'input-error' : value ? 'input-success' : ''}`}
+                    dateFormat="MM/dd/yyyy"
+                    showYearDropdown
+                    showMonthDropdown
+                    dropdownMode="select"
+                    maxDate={new Date()}
+                    isClearable
+                    />
+                </div>
             ) : (
                 <input
                     type={type}
