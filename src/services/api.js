@@ -83,6 +83,8 @@ export const registrationAPI = {
                     idempotencyKey: registrationData.idempotencyKey,
                     firstName: registrationData.firstName,
                     lastName: registrationData.lastName,
+                    gender: registrationData.gender,
+                    dateOfBirth: registrationData.dateOfBirth,
                     email: registrationData.email,
                     address: registrationData.address,
                     homePhone: registrationData.homePhone || null,

@@ -354,7 +354,6 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                 >
                                     Add
                                 </button>
-                                <h1>{examSectionsAmount}</h1>
 
                             </div>
                             <CostDetails/>
