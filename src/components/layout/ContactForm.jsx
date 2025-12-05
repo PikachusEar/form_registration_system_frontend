@@ -6,8 +6,9 @@ import ExamTimeTable from "../common/ExamTimeTable.jsx";
 import CostDetails from "../common/CostDetails.jsx";
 import PaymentMethod from "../common/PaymentMethod.jsx";
 import TotalCost from "../common/TotalCost.jsx";
+import { sectionNamesAPI } from '../../services/api.js';
 
-function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submitSuccess, priceType = 'regular'}) {
+function ContactForm({onSubmit, gradeSections, isSubmitting, submitSuccess, priceType = 'regular'}) {
     const [formState, setFormState] = useState({
         firstName: '',
         lastName: '',
@@ -19,7 +20,7 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
         mobilePhone: '',
         currentSchool: '',
         grade: '',
-        examSection: [''],
+        examSectionIds: [''], // Changed to store UUIDs
     })
     const [error, setError] = useState({
         firstName: 'This field is required',
@@ -31,10 +32,53 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
         mobilePhone: 'This field is required',
         currentSchool: 'This field is required',
         grade: 'This field is required',
-        examSection: ['This field is required'],
+        examSectionIds: ['This field is required'],
     });
     const [hasError, setHasError] = useState(true);
     const [examSectionsAmount, setExamSectionsAmount] = useState(1);
+
+    // New state for section names from API
+    const [availableSections, setAvailableSections] = useState([]);
+    const [isLoadingSections, setIsLoadingSections] = useState(true);
+    const [sectionsError, setSectionsError] = useState(null);
+
+    // Fetch section names on component mount
+    useEffect(() => {
+        const fetchSectionNames = async () => {
+            setIsLoadingSections(true);
+            setSectionsError(null);
+
+            try {
+                const response = await sectionNamesAPI.getActive();
+
+                if (response.success) {
+                    // Format data for dropdown options
+                    const formattedSections = response.data.map(section => ({
+                        value: section.id,
+                        label: section.name,
+                        description: section.description,
+                        sectionDate: section.sectionDate,
+                        isActive: section.isActive
+                    }));
+
+                    // Filter only active sections
+                    const activeSections = formattedSections.filter(s => s.isActive);
+                    setAvailableSections(activeSections);
+                    console.log('Loaded exam sections:', activeSections);
+                } else {
+                    setSectionsError(response.message || 'Failed to load exam sections');
+                    console.error('Failed to load sections:', response.message);
+                }
+            } catch (error) {
+                setSectionsError('Failed to connect to server');
+                console.error('Error fetching sections:', error);
+            } finally {
+                setIsLoadingSections(false);
+            }
+        };
+
+        fetchSectionNames();
+    }, []);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -46,27 +90,26 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
     }
 
     const handleExamSectionFieldChange = (index, value) => {
-        const newExamSections = [...formState.examSection];
-        newExamSections[index] = value;
-        setFormState({ ...formState, examSection: newExamSections });
+        const newExamSectionIds = [...formState.examSectionIds];
+        newExamSectionIds[index] = value;
+        setFormState({ ...formState, examSectionIds: newExamSectionIds });
 
         // Validate
-        const fieldError = validators.examSection(value);
-        const newErrors = [...(error.examSection || [])];
+        const fieldError = validators.examSectionId(value);
+        const newErrors = [...(error.examSectionIds || [])];
         newErrors[index] = fieldError;
-        setError(prev => ({ ...prev, examSection: newErrors }));
+        setError(prev => ({ ...prev, examSectionIds: newErrors }));
     }
 
     useEffect(() => {
         const hasFieldError = Object.entries(error).some(([key, err]) => {
-            if (key === 'examSection' && Array.isArray(err)) {
+            if (key === 'examSectionIds' && Array.isArray(err)) {
                 return err.some(e => e);  // Check if any exam section has error
             }
             return err;
         });
         setHasError(hasFieldError);
     }, [error]);
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -84,7 +127,7 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                     mobilePhone: '',
                     currentSchool: '',
                     grade: '',
-                    examSection: [''],
+                    examSectionIds: [''],
                 })
                 setExamSectionsAmount(1);
             }, 1000)
@@ -96,14 +139,15 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
             setExamSectionsAmount(examSectionsAmount + 1);
             setFormState(prev => ({
                 ...prev,
-                examSection: [...prev.examSection, '']
+                examSectionIds: [...prev.examSectionIds, '']
             }));
             setError(prev => ({
                 ...prev,
-                examSection: [...(prev.examSection || []), 'This field is required']
+                examSectionIds: [...(prev.examSectionIds || []), 'This field is required']
             }));
         }
     }
+
     const validators = {
         required: (value) => {
             return value.trim() !== '' ? null : 'This field is required';
@@ -135,8 +179,9 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
             if (value.trim().length === 0) return 'Last name cannot be only spaces';
             return firstNameRegex.test(value) ? null : 'Please enter a valid last name';
         },
-        examSection: (value) => {
+        examSectionId: (value) => {
             if (!value) return 'Please select exam section';
+            return null;
         },
         grade:(value) => {
             if (!value) return 'Please select your grade';
@@ -157,6 +202,7 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
             return null;
         },
     }
+
     const validateFields = (name, value) => {
         let errors = {};
         switch (name) {
@@ -175,8 +221,8 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
             case 'mobilePhone':
                 errors = validators.mobilePhone(value);
                 break;
-            case 'examSection':
-                errors = validators.examSection(value)
+            case 'examSectionId':
+                errors = validators.examSectionId(value)
                 break
             case 'grade':
                 errors = validators.grade(value)
@@ -195,7 +241,6 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                 break
             default:
                 break;
-
         }
         setError(prev => ({ ...prev, [name]: errors }));
         if (errors) {
@@ -204,7 +249,11 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
         return errors;
     }
 
-
+    // Helper function to get section name by ID
+    const getSectionNameById = (id) => {
+        const section = availableSections.find(s => s.value === id);
+        return section ? section.label : '';
+    };
 
     return (
         <div className="max-w-4xl mx-auto p-8">
@@ -212,31 +261,51 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                 <div className="card-body">
                     <div className="flex items-center justify-between mb-8 gap-4">
                         <img
-                        src="/src/assets/Amberson_Logo.png"
-                        alt="School Logo"
-                        className="w-62 h-21 "
+                            src="/src/assets/Amberson_Logo.png"
+                            alt="School Logo"
+                            className="w-62 h-21 "
                         />
                         <div className="text-right flex-1">
                             <h1 className="text-2xl font-bold text-gray-600 mb-2">AP EXAM Only Sections Registration Form </h1>
                             <h1 className="text-2xl font-bold text-gray-600 mb-2">2025-2026</h1>
-                            {/*<p className="text-lg text-gray-600">Amberson High School</p>*/}
                         </div>
                     </div>
+
+                    {/* Loading/Error State for Sections */}
+                    {isLoadingSections && (
+                        <div className="alert alert-info mb-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Loading exam sections...</span>
+                        </div>
+                    )}
+
+                    {sectionsError && (
+                        <div className="alert alert-error mb-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Error loading exam sections: {sectionsError}</span>
+                        </div>
+                    )}
+
                     {/* Form Section */}
                     <div className="card bg-info/10 mb-8">
                         <div className="card-body">
                             <h2 className="text-2xl font-bold mb-6">AP EXAM Registration Form</h2>
 
                             <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><FormField
-                                    key="1"
-                                    name="firstName"
-                                    label="First Name"
-                                    value={formState.firstName}
-                                    onChange={handleChange}
-                                    error={error.firstName}
-                                    placeholder="Enter your first name"
-                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                        key="1"
+                                        name="firstName"
+                                        label="First Name"
+                                        value={formState.firstName}
+                                        onChange={handleChange}
+                                        error={error.firstName}
+                                        placeholder="Enter your first name"
+                                    />
                                     <FormField
                                         key="2"
                                         name="lastName"
@@ -245,22 +314,23 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                         onChange={handleChange}
                                         error={error.lastName}
                                         placeholder="Enter your last name"
-                                    /></div>
+                                    />
+                                </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField
-                                    key="8"
-                                    name={`gender`}
-                                    label={`Gender`}
-                                    type="select"
-                                    value={formState.gender}
-                                    onChange={handleChange}
-                                    error={error.gender}
-                                    placeholder="Select your gender"
-                                    options={[{value: "Male", label: "Male"}, {
-                                        value: "Female",
-                                        label: "Female"
-                                    }, {value: "Other", label: "Other"}]}
-                                />
+                                        key="8"
+                                        name={`gender`}
+                                        label={`Gender`}
+                                        type="select"
+                                        value={formState.gender}
+                                        onChange={handleChange}
+                                        error={error.gender}
+                                        placeholder="Select your gender"
+                                        options={[{value: "Male", label: "Male"}, {
+                                            value: "Female",
+                                            label: "Female"
+                                        }, {value: "Other", label: "Other"}]}
+                                    />
                                     <FormField
                                         key="dateOfBirth"
                                         name="dateOfBirth"
@@ -292,14 +362,14 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                 />
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField
-                                    key="5"
-                                    name="mobilePhone"
-                                    label="Mobile Phone"
-                                    value={formState.mobilePhone}
-                                    onChange={handleChange}
-                                    error={error.mobilePhone}
-                                    placeholder="+1 (555) 000-0000"
-                                />
+                                        key="5"
+                                        name="mobilePhone"
+                                        label="Mobile Phone"
+                                        value={formState.mobilePhone}
+                                        onChange={handleChange}
+                                        error={error.mobilePhone}
+                                        placeholder="+1 (555) 000-0000"
+                                    />
                                     <FormField
                                         key="4"
                                         name="homePhone"
@@ -310,7 +380,7 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                         placeholder="+1 (555) 000-0000"
                                     />
                                 </div>
-                                
+
                                 <FormField
                                     key="6"
                                     name="currentSchool"
@@ -334,32 +404,46 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
 
                                 <ExamTimeTable/>
 
-                                {formState.examSection.map((value, index) => (
-                                    <FormField
-                                        key={`examSection-${index}`}
-                                        name={`examSection${index}`}
-                                        label={`Name of Exam Section ${index + 1}`}
-                                        type="select"
-                                        value={value}
-                                        onChange={(e) => handleExamSectionFieldChange(index, e.target.value)}
-                                        error={error.examSection?.[index]}
-                                        placeholder="Select an exam section"
-                                        options={examSections}
-                                    />
-                                ))}
-                                <button
-                                    className="btn btn-block btn-sm btn-soft btn-secondary"
-                                    onClick={handleExamSectionChange}
-                                    disabled={examSectionsAmount >= 5}
-                                >
-                                    Add
-                                </button>
+                                {/* Dynamic Exam Section Fields */}
+                                {!isLoadingSections && availableSections.length > 0 && (
+                                    <>
+                                        {formState.examSectionIds.map((value, index) => (
+                                            <FormField
+                                                key={`examSectionId-${index}`}
+                                                name={`examSectionId${index}`}
+                                                label={`Name of Exam Section ${index + 1}`}
+                                                type="select"
+                                                value={value}
+                                                onChange={(e) => handleExamSectionFieldChange(index, e.target.value)}
+                                                error={error.examSectionIds?.[index]}
+                                                placeholder="Select an exam section"
+                                                options={availableSections}
+                                            />
+                                        ))}
+                                        <button
+                                            className="btn btn-block btn-sm btn-soft btn-secondary"
+                                            onClick={handleExamSectionChange}
+                                            disabled={examSectionsAmount >= 5}
+                                        >
+                                            Add Exam Section {examSectionsAmount >= 5 && '(Maximum 5)'}
+                                        </button>
+                                    </>
+                                )}
 
+                                {!isLoadingSections && availableSections.length === 0 && (
+                                    <div className="alert alert-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <span>No exam sections available at this time. Please check back later.</span>
+                                    </div>
+                                )}
                             </div>
+
                             <CostDetails/>
                             <PaymentMethod/>
                             <TotalCost
-                                selectedExams={formState.examSection}
+                                selectedExams={formState.examSectionIds.filter(id => id).map(id => getSectionNameById(id))}
                                 registrationType={priceType}
                             />
 
@@ -388,7 +472,7 @@ function ContactForm({onSubmit, examSections, gradeSections, isSubmitting, submi
                                 <button
                                     onClick={hasError ? () => alert('Please fix the errors first') : handleSubmit}
                                     className={`btn btn-lg ${hasError ? 'btn-error' : 'btn-primary'} ${isSubmitting ? 'loading' : ''}`}
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || isLoadingSections}
                                 >
                                     {isSubmitting ? 'Submitting...' : hasError ? 'Check Errors' : 'Submit'}
                                 </button>

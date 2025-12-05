@@ -4,7 +4,9 @@ function TotalCost({ selectedExams = [], registrationType = 'regular' }) {
     const LATE_FEE = 75;
 
     const pricePerExam = REGULAR_PRICE;
-    const examCount = selectedExams.length;
+    // Filter out empty strings from selectedExams
+    const validExams = selectedExams.filter(exam => exam && exam.trim() !== '');
+    const examCount = validExams.length;
     const subtotal = examCount * pricePerExam;
     const lateFeeTotal = registrationType === 'late' ? examCount * LATE_FEE : 0;
     const total = subtotal + lateFeeTotal;
@@ -32,7 +34,7 @@ function TotalCost({ selectedExams = [], registrationType = 'regular' }) {
                             <div className="mt-4 pt-4 border-t border-gray-200">
                                 <p className="text-sm font-semibold text-gray-600 mb-2">Selected Exams:</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {selectedExams.map((exam, index) => (
+                                    {validExams.map((exam, index) => (
                                         <div key={index} className="badge badge-primary badge-lg">
                                             {exam}
                                         </div>
@@ -47,9 +49,9 @@ function TotalCost({ selectedExams = [], registrationType = 'regular' }) {
                         <div className="flex justify-between items-center">
                             <div>
                                 <span className="text-gray-700">Price per Exam</span>
-                                {/*{registrationType === 'late' && (
+                                {registrationType === 'late' && (
                                     <div className="badge badge-warning badge-sm ml-2">Late Registration</div>
-                                )}*/}
+                                )}
                             </div>
                             <span className="font-semibold">CAD ${pricePerExam}</span>
                         </div>

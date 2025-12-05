@@ -5,6 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5051/api'
 const ENDPOINTS = {
     REGISTRATIONS: '/registrations',
     REGISTRATION_BY_ID: (id) => `/registrations/${id}`,
+    SECTION_NAMES_ACTIVE: '/SectionNames/active',
 };
 
 /**
@@ -57,6 +58,7 @@ const apiRequest = async (url, options = {}) => {
         };
     }
 };
+
 // Generate a unique idempotency key
 export const generateIdempotencyKey = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -64,6 +66,36 @@ export const generateIdempotencyKey = () => {
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
+};
+
+/**
+ * Section Names API Service
+ */
+export const sectionNamesAPI = {
+
+    /**
+     * Get only active section names
+     * @returns {Promise<object>} List of active section names
+     */
+    getActive: async () => {
+        try {
+            const response = await apiRequest(ENDPOINTS.SECTION_NAMES_ACTIVE, {
+                method: 'GET',
+            });
+
+            return {
+                success: true,
+                data: response.data,
+                message: response.message
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.message,
+                errors: error.errors || []
+            };
+        }
+    },
 };
 
 /**
@@ -91,7 +123,7 @@ export const registrationAPI = {
                     mobilePhone: registrationData.mobilePhone,
                     currentSchool: registrationData.currentSchool,
                     grade: registrationData.grade,
-                    examSection: registrationData.examSection,
+                    examSectionIds: registrationData.examSectionIds, // Changed from examSection
                 }),
                 signal: options.signal,
             });
@@ -237,8 +269,8 @@ export const validateRegistrationData = (data) => {
         errors.push('Grade is required');
     }
 
-    if (!data.examSection) {
-        errors.push('Exam section is required');
+    if (!data.examSectionIds || data.examSectionIds.length === 0) {
+        errors.push('At least one exam section is required');
     }
 
     return {
